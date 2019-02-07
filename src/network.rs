@@ -9,9 +9,13 @@ pub struct Sequential {
 }
 
 impl Sequential {
+
+    /// Create a new `Sequential` network.
     pub fn new() -> Self {
         Sequential::default()
     }
+
+    /// Add a layer to the network
     pub fn add(&mut self, layer: impl Layer + 'static) -> Result<(), &'static str> {
 
         // Ensure this layer's input matches the previous layer's output
@@ -23,13 +27,23 @@ impl Sequential {
         self.layers.push(Box::new(layer));
         Ok(())
     }
+
+    /// Determine how many layers on held in the network
     pub fn len(&self) -> usize {
         self.layers.len()
     }
+
+    /// Use the network to predict the outcome of x
     pub fn predict(&self, x: Array2<f32>) -> Array2<f32> {
+        self.apply(x)
+    }
+    
+    // Apply the network against an input
+    fn apply(&self, x: Array2<f32>) -> Array2<f32> {
         let mut layer0 = x;
         self.layers
             .iter()
             .fold(layer0, |out, layer| layer.dot(out))
     }
+
 }

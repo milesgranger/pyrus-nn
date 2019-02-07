@@ -24,5 +24,8 @@ fn test_setup() {
         [4., 5., 6.]
     ]);
     let out = network.predict(x);
+
+    // Array of two predictions
+    assert_eq!(out.shape(), &[1, 2]);
     println!("Output: {:#?}", out);
 }
