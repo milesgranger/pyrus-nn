@@ -1,4 +1,4 @@
-use ndarray::Array2;
+use ndarray::{Array1, Array2};
 
 use crate::layers::Layer;
 use crate::activations;
@@ -34,16 +34,56 @@ impl Sequential {
     }
 
     /// Use the network to predict the outcome of x
-    pub fn predict(&self, x: Array2<f32>) -> Array2<f32> {
-        self.apply(x)
+    pub fn predict(&mut self, x: Array2<f32>) -> Array2<f32> {
+        self.forward(x)
     }
     
     // Apply the network against an input
-    fn apply(&self, x: Array2<f32>) -> Array2<f32> {
-        let mut layer0 = x;
+    fn forward(&mut self, x: Array2<f32>) -> Array2<f32> {
         self.layers
-            .iter()
-            .fold(layer0, |out, layer| layer.dot(out))
+            .iter_mut()
+            .fold(x, |out, ref mut layer| layer.forward(out))
+    }
+
+    // train network
+    pub fn fit(&mut self, x: Array2<f32>, y: Array2<f32>) {
+
+        let output = self.forward(x.clone());
+
+        self.layers
+            .iter_mut()
+            .rev()
+            .fold(None, | error: Option<Array2<f32>>, layer: &mut Box<dyn Layer + 'static>| {
+
+                match error {
+
+                    // All hidden and input layers
+                    Some(error) => {
+                        let delta_i = activations::sigmoid(&layer.output(), true) * error.t();
+                        let error_out = layer.weights().dot(&delta_i.t());
+
+
+                        let updates = layer.input().t().dot(&delta_i);
+                        layer.backward(updates);
+
+                        Some(error_out)
+                    },
+
+                    // Output layer, (no error calculated from previous layer)
+                    None => {
+                        let error = &y - &output;
+                        let delta_o = error * activations::sigmoid(&output, true);
+                        let error_out = layer.weights().dot(&delta_o.t());
+
+                        let updates = layer.input().t().dot(&delta_o);
+                        println!("Calcualted updates for output layer: {:?}", updates.shape());
+                        layer.backward(updates);
+
+                        Some(error_out)
+                    }
+                }
+
+            });
     }
 
 }
