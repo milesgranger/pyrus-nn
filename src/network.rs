@@ -10,13 +10,17 @@ pub struct Sequential {
     n_epoch: usize
 }
 
+fn squared_error(y: f32, yhat: f32) -> f32 {
+    (y - yhat).abs().sqrt()
+}
+
 impl Sequential {
 
     /// Create a new `Sequential` network.
     pub fn new() -> Self {
         let mut nn = Sequential::default();
-        nn.lr = 0.001;
-        nn.n_epoch = 10;
+        nn.lr = 0.1;
+        nn.n_epoch = 100;
         nn
     }
 
@@ -62,7 +66,7 @@ impl Sequential {
             self.layers
                 .iter_mut()
                 .rev()
-                .fold(None, | error: Option<Array2<f32>>, layer: &mut Box<dyn Layer + 'static>| {
+                .fold(None, | error: Option<Array2<f32>>, layer: &mut Box<dyn Layer + 'static> | {
 
                     match error {
 
@@ -79,7 +83,10 @@ impl Sequential {
 
                         // Output layer, (no error calculated from previous layer)
                         None => {
-                            let error = &y - &output;
+
+                            // TODO: Add choice of cost func.
+                            let error = (&y - &output).mapv(|v| v.abs().sqrt());
+
 
                             let delta_o = error * activations::sigmoid(&output, true);
                             let updates = layer.input().t().dot(&delta_o).mapv(|v| v * lr);

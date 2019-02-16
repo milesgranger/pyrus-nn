@@ -89,11 +89,13 @@ fn test_setup() {
 
     let (x, y) = _get_iris();
     let out = network.predict(x.clone());
+    assert_ne!(&out.as_slice().unwrap()[0..4], &[1.0, 1.0, 1.0, 1.0]);
     println!("Output before back prop: {:#?}", &out.as_slice().unwrap()[0..4]);
 
     network.fit(x.clone(), y);
     let out = network.predict(x);
     println!("Output after back prop: {:#?}", &out.as_slice().unwrap()[0..4]);
+    assert_eq!(&out.as_slice().unwrap()[0..4], &[1.0, 1.0, 1.0, 1.0]);
     // Array of two predictions
     //assert_eq!(out.shape(), &[1, 2]);
 }
