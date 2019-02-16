@@ -44,7 +44,12 @@ impl Layer for Dense {
     fn weights(&self) -> Array2<f32> {
         self.weights.clone()
     }
-    fn backward(&mut self, updates: Array2<f32>) {
+    fn backward(&mut self, error: Array2<f32>) -> Array2<f32> {
+        let lr = 0.1;
+        let delta = activations::sigmoid(&self.output(), true) * error.t();
+        let updates = self.input().t().dot(&delta).mapv(|v| v * lr);
+        let error_out = self.weights().dot(&delta.t());
         self.weights += &updates;
+        error_out
     }
 }

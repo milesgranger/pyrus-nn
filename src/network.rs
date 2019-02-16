@@ -72,27 +72,15 @@ impl Sequential {
 
                         // All hidden and input layers
                         Some(error) => {
-                            let delta_i = activations::sigmoid(&layer.output(), true) * error.t();
-                            let error_out = layer.weights().dot(&delta_i.t());
-
-                            let updates = layer.input().t().dot(&delta_i).mapv(|v| v * lr);
-                            layer.backward(updates);
-
+                            let error_out = layer.backward(error);
                             Some(error_out)
                         },
 
                         // Output layer, (no error calculated from previous layer)
                         None => {
-
                             // TODO: Add choice of cost func.
-                            let error = (&y - &output).mapv(|v| v.abs().sqrt());
-
-
-                            let delta_o = error * activations::sigmoid(&output, true);
-                            let updates = layer.input().t().dot(&delta_o).mapv(|v| v * lr);
-                            layer.backward(updates);
-
-                            let error_out = layer.weights().dot(&delta_o.t());
+                            let error = (&y - &output).mapv(|v| v.abs().sqrt()).t().to_owned();
+                            let error_out = layer.backward(error);
                             Some(error_out)
                         }
                     }

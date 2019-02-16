@@ -14,5 +14,5 @@ pub trait Layer {
     fn output(&self) -> Array2<f32>;
     fn input(&self) -> Array2<f32>;
     fn weights(&self) -> Array2<f32>;
-    fn backward(&mut self, updates: Array2<f32>);
+    fn backward(&mut self, error: Array2<f32>) -> Array2<f32>;
 }
