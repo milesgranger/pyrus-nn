@@ -1,6 +1,7 @@
 use ndarray::{ArrayD, Axis, Dim, Array2, Array1};
 use rand::distributions::Normal;
 use ndarray_rand::{RandomExt, F32};
+use ndarray_parallel::prelude::*;
 
 use crate::layers::Layer;
 use crate::activations;
@@ -47,7 +48,8 @@ impl Layer for Dense {
     fn backward(&mut self, error: Array2<f32>) -> Array2<f32> {
         let lr = 0.1;
         let delta = activations::sigmoid(&self.output(), true) * error.t();
-        let updates = self.input().t().dot(&delta).mapv(|v| v * lr);
+        let mut updates = self.input().t().dot(&delta);
+        updates.par_mapv_inplace(|v| v * lr);
         let error_out = self.weights().dot(&delta.t());
         self.weights += &updates;
         error_out

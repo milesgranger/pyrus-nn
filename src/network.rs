@@ -1,4 +1,5 @@
 use ndarray::{Array1, Array2};
+use ndarray_parallel::prelude::*;
 
 use crate::layers::Layer;
 use crate::activations;
@@ -79,8 +80,10 @@ impl Sequential {
                         // Output layer, (no error calculated from previous layer)
                         None => {
                             // TODO: Add choice of cost func.
-                            let error = (&y - &output).mapv(|v| v.abs().sqrt()).t().to_owned();
-                            let error_out = layer.backward(error);
+                            let mut error = &y - &output;
+                            error.par_mapv_inplace(|v| v.abs().sqrt());
+
+                            let error_out = layer.backward(error.t().to_owned());
                             Some(error_out)
                         }
                     }
