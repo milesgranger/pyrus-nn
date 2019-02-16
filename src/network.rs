@@ -5,14 +5,17 @@ use crate::activations;
 
 #[derive(Default)]
 pub struct Sequential {
-    layers: Vec<Box<dyn Layer>>
+    layers: Vec<Box<dyn Layer>>,
+    lr: f32,
 }
 
 impl Sequential {
 
     /// Create a new `Sequential` network.
     pub fn new() -> Self {
-        Sequential::default()
+        let mut nn = Sequential::default();
+        nn.lr = 0.1;
+        nn
     }
 
     /// Add a layer to the network
@@ -49,6 +52,7 @@ impl Sequential {
     pub fn fit(&mut self, x: Array2<f32>, y: Array2<f32>) {
 
         let output = self.forward(x.clone());
+        let lr = self.lr;
 
         self.layers
             .iter_mut()
@@ -61,9 +65,8 @@ impl Sequential {
                     Some(error) => {
                         let delta_i = activations::sigmoid(&layer.output(), true) * error.t();
                         let error_out = layer.weights().dot(&delta_i.t());
-
-
-                        let updates = layer.input().t().dot(&delta_i);
+                        
+                        let updates = layer.input().t().dot(&delta_i).mapv(|v| v * lr);
                         layer.backward(updates);
 
                         Some(error_out)
@@ -72,11 +75,13 @@ impl Sequential {
                     // Output layer, (no error calculated from previous layer)
                     None => {
                         let error = &y - &output;
+
                         let delta_o = error * activations::sigmoid(&output, true);
+
                         let error_out = layer.weights().dot(&delta_o.t());
 
-                        let updates = layer.input().t().dot(&delta_o);
-                        println!("Calcualted updates for output layer: {:?}", updates.shape());
+                        let updates = layer.input().t().dot(&delta_o).mapv(|v| v * lr);
+
                         layer.backward(updates);
 
                         Some(error_out)

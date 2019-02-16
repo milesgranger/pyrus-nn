@@ -45,6 +45,6 @@ impl Layer for Dense {
         self.weights.clone()
     }
     fn backward(&mut self, updates: Array2<f32>) {
-        self.weights.zip_mut_with(&updates, |v1, v2| *v1 += v2);
+        self.weights += &updates;
     }
 }
