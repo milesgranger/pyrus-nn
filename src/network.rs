@@ -7,6 +7,7 @@ use crate::activations;
 pub struct Sequential {
     layers: Vec<Box<dyn Layer>>,
     lr: f32,
+    n_epoch: usize
 }
 
 impl Sequential {
@@ -14,7 +15,8 @@ impl Sequential {
     /// Create a new `Sequential` network.
     pub fn new() -> Self {
         let mut nn = Sequential::default();
-        nn.lr = 0.1;
+        nn.lr = 0.001;
+        nn.n_epoch = 10;
         nn
     }
 
@@ -51,44 +53,46 @@ impl Sequential {
     // train network
     pub fn fit(&mut self, x: Array2<f32>, y: Array2<f32>) {
 
-        let output = self.forward(x.clone());
         let lr = self.lr;
 
-        self.layers
-            .iter_mut()
-            .rev()
-            .fold(None, | error: Option<Array2<f32>>, layer: &mut Box<dyn Layer + 'static>| {
+        for epoch in 0..self.n_epoch {
 
-                match error {
+            let output = self.forward(x.clone());
 
-                    // All hidden and input layers
-                    Some(error) => {
-                        let delta_i = activations::sigmoid(&layer.output(), true) * error.t();
-                        let error_out = layer.weights().dot(&delta_i.t());
-                        
-                        let updates = layer.input().t().dot(&delta_i).mapv(|v| v * lr);
-                        layer.backward(updates);
+            self.layers
+                .iter_mut()
+                .rev()
+                .fold(None, | error: Option<Array2<f32>>, layer: &mut Box<dyn Layer + 'static>| {
 
-                        Some(error_out)
-                    },
+                    match error {
 
-                    // Output layer, (no error calculated from previous layer)
-                    None => {
-                        let error = &y - &output;
+                        // All hidden and input layers
+                        Some(error) => {
+                            let delta_i = activations::sigmoid(&layer.output(), true) * error.t();
+                            let error_out = layer.weights().dot(&delta_i.t());
 
-                        let delta_o = error * activations::sigmoid(&output, true);
+                            let updates = layer.input().t().dot(&delta_i).mapv(|v| v * lr);
+                            layer.backward(updates);
 
-                        let error_out = layer.weights().dot(&delta_o.t());
+                            Some(error_out)
+                        },
 
-                        let updates = layer.input().t().dot(&delta_o).mapv(|v| v * lr);
+                        // Output layer, (no error calculated from previous layer)
+                        None => {
+                            let error = &y - &output;
 
-                        layer.backward(updates);
+                            let delta_o = error * activations::sigmoid(&output, true);
+                            let updates = layer.input().t().dot(&delta_o).mapv(|v| v * lr);
+                            layer.backward(updates);
 
-                        Some(error_out)
+                            let error_out = layer.weights().dot(&delta_o.t());
+                            Some(error_out)
+                        }
                     }
-                }
 
-            });
+                });
+        }
+
     }
 
 }
