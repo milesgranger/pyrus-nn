@@ -48,47 +48,48 @@ impl Sequential {
         self.forward(x)
     }
     
-    // Apply the network against an input
-    fn forward(&mut self, x: Array2<f32>) -> Array2<f32> {
+    /// Apply the network against an input
+    pub fn forward(&mut self, x: Array2<f32>) -> Array2<f32> {
         self.layers
             .iter_mut()
             .fold(x, |out, ref mut layer| layer.forward(out))
     }
 
-    // train network
+    /// Run back propagation on output vs expected
+    pub fn backward(&mut self, output: &Array2<f32>, expected: &Array2<f32>) {
+        self.layers
+            .iter_mut()
+            .rev()
+            .fold(None, | error: Option<Array2<f32>>, layer: &mut Box<dyn Layer + 'static> | {
+
+                match error {
+
+                    // All hidden and input layers
+                    Some(error) => {
+                        let error_out = layer.backward(error);
+                        Some(error_out)
+                    },
+
+                    // Output layer, (no error calculated from previous layer)
+                    None => {
+                        // TODO: Add choice of cost func.
+                        let mut error = expected - output;
+                        error.par_mapv_inplace(|v| v.abs().sqrt());
+
+                        let error_out = layer.backward(error.t().to_owned());
+                        Some(error_out)
+                    }
+                }
+
+            });
+    }
+
+    /// Train the network according to the parameters set given training and target data
     pub fn fit(&mut self, x: Array2<f32>, y: Array2<f32>) {
 
-        let lr = self.lr;
-
         for epoch in 0..self.n_epoch {
-
             let output = self.forward(x.clone());
-
-            self.layers
-                .iter_mut()
-                .rev()
-                .fold(None, | error: Option<Array2<f32>>, layer: &mut Box<dyn Layer + 'static> | {
-
-                    match error {
-
-                        // All hidden and input layers
-                        Some(error) => {
-                            let error_out = layer.backward(error);
-                            Some(error_out)
-                        },
-
-                        // Output layer, (no error calculated from previous layer)
-                        None => {
-                            // TODO: Add choice of cost func.
-                            let mut error = &y - &output;
-                            error.par_mapv_inplace(|v| v.abs().sqrt());
-
-                            let error_out = layer.backward(error.t().to_owned());
-                            Some(error_out)
-                        }
-                    }
-
-                });
+            self.backward(&output, &y)
         }
 
     }
