@@ -22,7 +22,7 @@ impl Sequential {
     pub fn new() -> Self {
         let mut nn = Sequential::default();
         nn.lr = 0.1;
-        nn.n_epoch = 100;
+        nn.n_epoch = 10;
         nn.batch_size = 32;
         nn
     }
@@ -46,8 +46,8 @@ impl Sequential {
     }
 
     /// Use the network to predict the outcome of x
-    pub fn predict(&mut self, x: Array2<f32>) -> Array2<f32> {
-        self.forward(x.view())
+    pub fn predict(&mut self, x: ArrayView2<f32>) -> Array2<f32> {
+        self.forward(x)
     }
     
     /// Apply the network against an input
@@ -87,10 +87,10 @@ impl Sequential {
     }
 
     /// Train the network according to the parameters set given training and target data
-    pub fn fit(&mut self, x: Array2<f32>, y: Array2<f32>) {
+    pub fn fit(&mut self, x: ArrayView2<f32>, y: ArrayView2<f32>) {
 
         // Epochs
-        for epoch in 0..self.n_epoch {
+        for _epoch in 0..self.n_epoch {
 
             // Batches
             for (batch, target) in x.exact_chunks((self.batch_size, x.shape()[1]))

@@ -2,6 +2,7 @@ use ndarray::{arr2, Array2};
 
 use pyrus_nn::network::Sequential;
 use pyrus_nn::layers::{Layer, Dense};
+use pyrus_nn::costs;
 
 fn _get_iris() -> (Array2<f32>, Array2<f32>) {
     let X = arr2(&[
@@ -67,20 +68,20 @@ fn _get_iris() -> (Array2<f32>, Array2<f32>) {
 
 
 #[test]
-fn test_setup() {
+fn test_sequential_network() {
 
     let mut network = Sequential::new();
     assert!(
-        network.add(Dense::new(4, 5)).is_ok()
+        network.add(Dense::new(4, 64)).is_ok()
     );
     assert!(
-        network.add(Dense::new(5, 6)).is_ok()
+        network.add(Dense::new(64, 128)).is_ok()
     );
     assert!(
-        network.add(Dense::new(6, 4)).is_ok()
+        network.add(Dense::new(128, 64)).is_ok()
     );
     assert!(
-        network.add(Dense::new(4, 1)).is_ok()
+        network.add(Dense::new(64, 1)).is_ok()
     );
 
     if let Ok(_) = network.add(Dense::new(5, 2)) {
@@ -88,14 +89,18 @@ fn test_setup() {
     }
 
     let (x, y) = _get_iris();
-    let out = network.predict(x.clone());
+    let out = network.predict(x.view());
     assert_ne!(&out.as_slice().unwrap()[0..4], &[1.0, 1.0, 1.0, 1.0]);
     println!("Output before back prop: {:#?}", &out.as_slice().unwrap()[0..4]);
 
-    network.fit(x.clone(), y);
-    let out = network.predict(x);
+    network.fit(x.view(), y.view());
+    let out = network.predict(x.view());
     println!("Output after back prop: {:#?}", &out.as_slice().unwrap()[0..4]);
-    assert_eq!(&out.as_slice().unwrap()[0..4], &[1.0, 1.0, 1.0, 1.0]);
+
+    let mse = costs::mean_squared_error(y.view(), out.view());
+    println!("MSE: {}", mse);
+    assert!(mse > 0.6);
+
     // Array of two predictions
     //assert_eq!(out.shape(), &[1, 2]);
 }
