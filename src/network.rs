@@ -1,4 +1,4 @@
-use ndarray::{Array1, Array2};
+use ndarray::{Array1, Array2, ArrayBase, Dim, ViewRepr, Data, ArrayView2};
 use ndarray_parallel::prelude::*;
 
 use crate::layers::Layer;
@@ -8,7 +8,8 @@ use crate::activations;
 pub struct Sequential {
     layers: Vec<Box<dyn Layer>>,
     lr: f32,
-    n_epoch: usize
+    n_epoch: usize,
+    batch_size: usize,
 }
 
 fn squared_error(y: f32, yhat: f32) -> f32 {
@@ -17,11 +18,12 @@ fn squared_error(y: f32, yhat: f32) -> f32 {
 
 impl Sequential {
 
-    /// Create a new `Sequential` network.
+    /// Create a new `Sequential` network, with _perhaps_ sensible defaults.
     pub fn new() -> Self {
         let mut nn = Sequential::default();
         nn.lr = 0.1;
         nn.n_epoch = 100;
+        nn.batch_size = 32;
         nn
     }
 
@@ -45,18 +47,18 @@ impl Sequential {
 
     /// Use the network to predict the outcome of x
     pub fn predict(&mut self, x: Array2<f32>) -> Array2<f32> {
-        self.forward(x)
+        self.forward(x.view())
     }
     
     /// Apply the network against an input
-    pub fn forward(&mut self, x: Array2<f32>) -> Array2<f32> {
+    pub fn forward(&mut self, x: ArrayView2<f32>) -> Array2<f32> {
         self.layers
             .iter_mut()
-            .fold(x, |out, ref mut layer| layer.forward(out))
+            .fold(x.to_owned(), |out, ref mut layer| layer.forward(out))
     }
 
     /// Run back propagation on output vs expected
-    pub fn backward(&mut self, output: &Array2<f32>, expected: &Array2<f32>) {
+    pub fn backward(&mut self, output: ArrayView2<f32>, expected: ArrayView2<f32>) {
         self.layers
             .iter_mut()
             .rev()
@@ -73,7 +75,7 @@ impl Sequential {
                     // Output layer, (no error calculated from previous layer)
                     None => {
                         // TODO: Add choice of cost func.
-                        let mut error = expected - output;
+                        let mut error = &expected - &output;
                         error.par_mapv_inplace(|v| v.abs().sqrt());
 
                         let error_out = layer.backward(error.t().to_owned());
@@ -87,9 +89,17 @@ impl Sequential {
     /// Train the network according to the parameters set given training and target data
     pub fn fit(&mut self, x: Array2<f32>, y: Array2<f32>) {
 
+        // Epochs
         for epoch in 0..self.n_epoch {
-            let output = self.forward(x.clone());
-            self.backward(&output, &y)
+
+            // Batches
+            for (batch, target) in x.exact_chunks((self.batch_size, x.shape()[1]))
+                .into_iter().zip(y.exact_chunks((self.batch_size, y.shape()[1])).into_iter()) {
+
+                let output = self.forward(batch);
+                self.backward(output.view(), target.view());
+            }
+
         }
 
     }
