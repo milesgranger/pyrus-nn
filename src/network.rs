@@ -1,3 +1,5 @@
+use std::iter;
+
 use ndarray::{Array1, Array2, ArrayBase, Zip, ArrayView2};
 use ndarray_parallel::prelude::*;
 
@@ -12,6 +14,7 @@ pub struct Sequential {
     n_epoch: usize,
     batch_size: usize,
     cost: CostFunc,
+    verbose: bool,
 }
 
 
@@ -23,6 +26,7 @@ impl Sequential {
         nn.lr = 0.1;
         nn.n_epoch = 10;
         nn.batch_size = 32;
+        nn.verbose = true;
         nn
     }
 
@@ -102,7 +106,7 @@ impl Sequential {
     pub fn fit(&mut self, x: ArrayView2<f32>, y: ArrayView2<f32>) {
 
         // Epochs
-        for _epoch in 0..self.n_epoch {
+        for epoch in 1..self.n_epoch + 1 {
 
             // Batches
             for (batch, target) in x.exact_chunks((self.batch_size, x.shape()[1]))
@@ -112,6 +116,21 @@ impl Sequential {
                 self.backward(output.view(), target.view());
             }
 
+            // Output some stats
+            if self.verbose {
+
+                let output = self.forward(x.view());
+
+                let error = match self.cost {
+                    CostFunc::MSE => costs::mean_squared_error(y.view(), output.view())
+                };
+
+                let progress = ((epoch as f32 / self.n_epoch as f32) * 10.) as usize;
+                let bar = iter::repeat("=").take(progress).collect::<String>();
+                let space_left = iter::repeat(".").take(10 - progress).collect::<String>();
+                println!("{}", format!("[{}>{}] - Epoch: {} - Error: {:.4}", bar, space_left, epoch, error));
+
+            }
         }
 
     }
