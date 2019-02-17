@@ -23,10 +23,11 @@ impl Sequential {
     /// Create a new `Sequential` network, with _perhaps_ sensible defaults.
     pub fn new() -> Self {
         let mut nn = Sequential::default();
-        nn.lr = 0.1;
-        nn.n_epoch = 10;
-        nn.batch_size = 32;
-        nn.verbose = true;
+        nn.lr = 0.01;
+        nn.n_epoch = 1000;
+        nn.batch_size = 20;
+        nn.verbose = false;
+        nn.cost = CostFunc::MAE;
         nn
     }
 
@@ -63,6 +64,8 @@ impl Sequential {
     /// Run back propagation on output vs expected
     pub fn backward(&mut self, output: ArrayView2<f32>, expected: ArrayView2<f32>) {
 
+        let lr = self.lr;
+
         let cost_func = match self.cost {
             CostFunc::MSE => costs::squared_error,
             CostFunc::MAE => costs::absolute_error,
@@ -79,7 +82,7 @@ impl Sequential {
 
                     // All hidden and input layers
                     Some(error) => {
-                        let error_out = layer.backward(error);
+                        let error_out = layer.backward(error, lr);
                         Some(error_out)
                     },
 
@@ -97,7 +100,7 @@ impl Sequential {
                                 *err = cost_func(exp, out);
                             });
 
-                        let error_out = layer.backward(error.t().to_owned());
+                        let error_out = layer.backward(error.t().to_owned(), lr);
                         Some(error_out)
                     }
                 }
