@@ -1,8 +1,9 @@
-use ndarray::{Array1, Array2, ArrayBase, Dim, ViewRepr, Data, ArrayView2};
+use ndarray::{Array1, Array2, ArrayBase, Zip, ArrayView2};
 use ndarray_parallel::prelude::*;
 
 use crate::layers::Layer;
 use crate::activations;
+use crate::costs::{self, CostFunc};
 
 #[derive(Default)]
 pub struct Sequential {
@@ -10,11 +11,9 @@ pub struct Sequential {
     lr: f32,
     n_epoch: usize,
     batch_size: usize,
+    cost: CostFunc,
 }
 
-fn squared_error(y: f32, yhat: f32) -> f32 {
-    (y - yhat).abs().sqrt()
-}
 
 impl Sequential {
 
@@ -59,6 +58,11 @@ impl Sequential {
 
     /// Run back propagation on output vs expected
     pub fn backward(&mut self, output: ArrayView2<f32>, expected: ArrayView2<f32>) {
+
+        let cost_func = match self.cost {
+            CostFunc::MSE => costs::squared_error
+        };
+
         self.layers
             .iter_mut()
             .rev()
@@ -74,9 +78,17 @@ impl Sequential {
 
                     // Output layer, (no error calculated from previous layer)
                     None => {
-                        // TODO: Add choice of cost func.
-                        let mut error = &expected - &output;
-                        error.par_mapv_inplace(|v| v.abs().sqrt());
+
+                        // Hold element-wise errors
+                        let mut error = Array2::zeros((output.shape()[0], output.shape()[1]));
+
+                        // Apply the scalar based cost function to out vs expected elements
+                        Zip::from(&mut error)
+                            .and(&expected)
+                            .and(&output)
+                            .par_apply(|err, &exp, &out| {
+                                *err = cost_func(exp, out);
+                            });
 
                         let error_out = layer.backward(error.t().to_owned());
                         Some(error_out)
