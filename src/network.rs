@@ -64,7 +64,8 @@ impl Sequential {
     pub fn backward(&mut self, output: ArrayView2<f32>, expected: ArrayView2<f32>) {
 
         let cost_func = match self.cost {
-            CostFunc::MSE => costs::squared_error
+            CostFunc::MSE => costs::squared_error,
+            CostFunc::MAE => costs::absolute_error
         };
 
         self.layers
@@ -122,7 +123,8 @@ impl Sequential {
                 let output = self.forward(x.view());
 
                 let error = match self.cost {
-                    CostFunc::MSE => costs::mean_squared_error(y.view(), output.view())
+                    CostFunc::MSE => costs::mean_squared_error(y.view(), output.view()),
+                    CostFunc::MAE => costs::mean_absolute_error(y.view(), output.view())
                 };
 
                 let progress = ((epoch as f32 / self.n_epoch as f32) * 10.) as usize;
