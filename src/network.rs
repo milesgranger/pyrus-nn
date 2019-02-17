@@ -67,6 +67,7 @@ impl Sequential {
             CostFunc::MSE => costs::squared_error,
             CostFunc::MAE => costs::absolute_error,
             CostFunc::Accuracy => costs::accuracy,
+            CostFunc::CrossEntropy => costs::single_cross_entropy
         };
 
         self.layers
@@ -126,7 +127,8 @@ impl Sequential {
                 let error = match self.cost {
                     CostFunc::MSE => costs::mean_squared_error(y.view(), output.view()),
                     CostFunc::MAE => costs::mean_absolute_error(y.view(), output.view()),
-                    CostFunc::Accuracy => costs::accuracy_score(y.view(), output.view())
+                    CostFunc::Accuracy => costs::accuracy_score(y.view(), output.view()),
+                    CostFunc::CrossEntropy => costs::cross_entropy(y.view(), output.view())
                 };
 
                 let progress = ((epoch as f32 / self.n_epoch as f32) * 10.) as usize;
