@@ -31,7 +31,7 @@ pub fn cross_entropy(y_true: ArrayView2<f32>, y_hat: ArrayView2<f32>) -> f32 {
 /// Cross entropy score of single element
 pub fn single_cross_entropy(y_true: f32, y_hat: f32) -> f32 {
 
-    let y_hat = if y_hat > 1.0 { y_hat - 1e-15 } else { y_hat + 1e-15 };
+    let y_hat = if y_hat > 1.0 { y_hat - 1e-15 } else if y_hat < 0.0 { y_hat + 1e-15 } else { y_hat };
 
     if y_true as usize == 1 {
         -(y_hat.ln())

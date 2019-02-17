@@ -3,6 +3,15 @@ use ndarray::Array2;
 use ndarray_parallel::prelude::*;
 
 
+pub enum Activation {
+    Sigmoid,
+    Linear
+}
+
+impl std::default::Default for Activation {
+    fn default() -> Self { Activation::Linear }
+}
+
 /// Calculate result of a sigmoid on `ArrayD`
 pub fn sigmoid(x: &Array2<f32>, deriv: bool) -> Array2<f32> {
     // TODO: Make this an inplace (&mut) process
