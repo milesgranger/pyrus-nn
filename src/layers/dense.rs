@@ -30,7 +30,8 @@ impl Layer for Dense {
         self.input = Some(x.clone());
         self.output = match self.activation {
             Activation::Linear => Some(x.dot(&self.weights)),
-            Activation::Sigmoid => Some(activations::sigmoid(&x.dot(&self.weights), false))
+            Activation::Sigmoid => Some(activations::sigmoid(&x.dot(&self.weights), false)),
+            Activation::Tanh => Some(activations::tanh(&x.dot(&self.weights), false))
         };
         self.output.clone().unwrap()
     }
@@ -53,7 +54,8 @@ impl Layer for Dense {
 
         let delta = match self.activation {
             Activation::Sigmoid => activations::sigmoid(&self.output(), true) * error.t(),
-            Activation::Linear => self.output() * error.t()
+            Activation::Linear => self.output() * error.t(),
+            Activation::Tanh => activations::tanh(&self.output(), true) * error.t()
         };
         let mut updates = self.input().t().dot(&delta);
         updates.par_mapv_inplace(|v| v * lr);
