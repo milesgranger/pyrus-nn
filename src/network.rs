@@ -1,10 +1,9 @@
 use std::iter;
 
-use ndarray::{Array1, Array2, ArrayBase, Zip, ArrayView2};
+use ndarray::{Array2, Zip, ArrayView2};
 use ndarray_parallel::prelude::*;
 
 use crate::layers::Layer;
-use crate::activations;
 use crate::costs::{self, CostFunc};
 
 #[derive(Default)]

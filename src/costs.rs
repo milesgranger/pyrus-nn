@@ -1,5 +1,4 @@
-use ndarray::{ArrayView2, Zip, Axis};
-use ndarray_parallel::prelude::*;
+use ndarray::{ArrayView2, Axis};
 
 /// Cost function selection `enum`
 pub enum CostFunc {
