@@ -1,4 +1,4 @@
-use ndarray::{ArrayD, Axis, Dim, Array2, Array1};
+use ndarray::{Array2};
 use rand::distributions::Normal;
 use ndarray_rand::{RandomExt, F32};
 use ndarray_parallel::prelude::*;
@@ -31,7 +31,8 @@ impl Layer for Dense {
         self.output = match self.activation {
             Activation::Linear => Some(x.dot(&self.weights)),
             Activation::Sigmoid => Some(activations::sigmoid(&x.dot(&self.weights), false)),
-            Activation::Tanh => Some(activations::tanh(&x.dot(&self.weights), false))
+            Activation::Tanh => Some(activations::tanh(&x.dot(&self.weights), false)),
+            Activation::Softmax => Some(activations::softmax(&x.dot(&self.weights), false))
         };
         self.output.clone().unwrap()
     }
@@ -55,7 +56,8 @@ impl Layer for Dense {
         let delta = match self.activation {
             Activation::Sigmoid => activations::sigmoid(&self.output(), true) * error.t(),
             Activation::Linear => self.output() * error.t(),
-            Activation::Tanh => activations::tanh(&self.output(), true) * error.t()
+            Activation::Tanh => activations::tanh(&self.output(), true) * error.t(),
+            Activation::Softmax => activations::softmax(&self.output(), true) * error.t()
         };
         let mut updates = self.input().t().dot(&delta);
         updates.par_mapv_inplace(|v| v * lr);

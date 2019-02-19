@@ -1,16 +1,42 @@
-use std::ops::Mul;
-use ndarray::Array2;
+use std::cmp::Ordering;
+use ndarray::{Array2, Axis};
 use ndarray_parallel::prelude::*;
 
 
 pub enum Activation {
     Sigmoid,
     Linear,
-    Tanh
+    Tanh,
+    Softmax
 }
 
 impl std::default::Default for Activation {
     fn default() -> Self { Activation::Linear }
+}
+
+/// Softmax
+pub fn softmax(x: &Array2<f32>, deriv: bool) -> Array2<f32> {
+    let mut out = x.clone();
+    let _ = out.axis_iter_mut(Axis(1))
+        .map(|ref mut vec| {
+            let max = vec.iter()
+                .max_by(|a, b| {
+                    a.partial_cmp(&b).unwrap_or_else(|| Ordering::Equal)
+                })
+                .unwrap();
+            let exps = vec.mapv(|v| (v - max).exp());
+            let result = &exps / exps.sum();
+            vec.zip_mut_with(&result, |v, r| *v = *r);
+
+            // Derivative
+            if deriv {
+                let s = vec.to_owned().into_shape((vec.len(), 1)).unwrap();
+                let result = &s.diag() - &s.dot(&s.t());
+                vec.zip_mut_with(&result, |v, r| *v = *r);
+            }
+        })
+        .collect::<Vec<()>>();
+    out
 }
 
 /// Tanh
