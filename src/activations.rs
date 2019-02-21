@@ -17,7 +17,8 @@ impl std::default::Default for Activation {
 /// Softmax
 pub fn softmax(x: &Array2<f32>, deriv: bool) -> Array2<f32> {
     let mut out = x.clone();
-    let _ = out.axis_iter_mut(Axis(1))
+    let shape = x.shape();
+    let _ = out.axis_iter_mut(Axis(0))
         .map(|ref mut vec| {
             let max = vec.iter()
                 .max_by(|a, b| {
@@ -30,8 +31,9 @@ pub fn softmax(x: &Array2<f32>, deriv: bool) -> Array2<f32> {
 
             // Derivative
             if deriv {
-                let s = vec.to_owned().into_shape((vec.len(), 1)).unwrap();
-                let result = &s.diag() - &s.dot(&s.t());
+                let _shape = vec.shape();
+                let s = vec.to_owned();
+                let result = (s.diag().to_owned() - s.dot(&s.t()));
                 vec.zip_mut_with(&result, |v, r| *v = *r);
             }
         })

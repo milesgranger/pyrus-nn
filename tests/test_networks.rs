@@ -1,9 +1,78 @@
-use ndarray::{arr2, Array2};
+use ndarray::{arr2, Array2, Axis};
 
 use pyrus_nn::network::Sequential;
 use pyrus_nn::layers::{Layer, Dense};
 use pyrus_nn::costs;
 use pyrus_nn::activations::Activation;
+
+
+#[test]
+fn test_sequential_network_classification() {
+
+    let mut network = Sequential::new();
+    assert!(
+        network.add(Dense::new(4, 10, Activation::Sigmoid)).is_ok()
+    );
+    assert!(
+        network.add(Dense::new(10, 8, Activation::Sigmoid)).is_ok()
+    );
+    assert!(
+        network.add(Dense::new(8, 6, Activation::Sigmoid)).is_ok()
+    );
+    assert!(
+        network.add(Dense::new(6, 3, Activation::Softmax)).is_ok()
+    );
+
+    if let Ok(_) = network.add(Dense::new(5, 2, Activation::Linear)) {
+        panic!("Added layer with mismatched sizes!")
+    }
+
+    let (x, y) = _get_iris();
+    let out = network.predict(x.view());
+    println!("Output before back prop: {:#?}", &out);
+
+    network.fit(x.view(), y.view());
+    let out = network.predict(x.view());
+    //println!("Output: {:?}", &out);
+    println!("Output after back prop: {:#?}", &out.as_slice().unwrap()[0..4]);
+
+    for (i, (pred, actual)) in out.axis_iter(Axis(0)).zip(y.axis_iter(Axis(0))).enumerate() {
+
+        if i % 20 == 0 {
+            println!("Predicted: {:?} ------Actual -> {:?}", pred, actual);
+        }
+    }
+
+    let mse = costs::mean_squared_error(y.view(), out.view());
+    println!("MSE: {}", mse);
+    assert!(mse > 0.6);
+
+    // Array of two predictions
+    //assert_eq!(out.shape(), &[1, 2]);
+}
+
+//#[test]
+fn test_sequential_network_regression() {
+    let mut network = Sequential::new();
+    assert!(
+        network.add(Dense::new(3, 12, Activation::Linear)).is_ok()
+    );
+    assert!(
+        network.add(Dense::new(12, 24, Activation::Linear)).is_ok()
+    );
+    assert!(
+        network.add(Dense::new(24, 1, Activation::Linear)).is_ok()
+    );
+
+    let (x, y) = _get_regression();
+
+    network.fit(x.view(), y.view());
+
+    let out = network.predict(x.view());
+    println!("Out: {:?}", &out.as_slice().unwrap()[0..4]);
+    println!("target: {:?}", &y.as_slice().unwrap()[0..4]);
+}
+
 
 fn _get_iris() -> (Array2<f32>, Array2<f32>) {
     let X = arr2(&[
@@ -77,68 +146,6 @@ fn _get_iris() -> (Array2<f32>, Array2<f32>) {
     ]);
 
     (X, y)
-}
-
-
-#[test]
-fn test_sequential_network_classification() {
-
-    let mut network = Sequential::new();
-    assert!(
-        network.add(Dense::new(4, 64, Activation::Linear)).is_ok()
-    );
-    assert!(
-        network.add(Dense::new(64, 128, Activation::Linear)).is_ok()
-    );
-    assert!(
-        network.add(Dense::new(128, 64, Activation::Linear)).is_ok()
-    );
-    assert!(
-        network.add(Dense::new(64, 3, Activation::Sigmoid)).is_ok()
-    );
-
-    if let Ok(_) = network.add(Dense::new(5, 2, Activation::Linear)) {
-        panic!("Added layer with mismatched sizes!")
-    }
-
-    let (x, y) = _get_iris();
-    let out = network.predict(x.view());
-    assert_ne!(&out.as_slice().unwrap()[0..4], &[1.0, 1.0, 1.0, 1.0]);
-    println!("Output before back prop: {:#?}", &out.as_slice().unwrap()[0..4]);
-
-    network.fit(x.view(), y.view());
-    let out = network.predict(x.view());
-    //println!("Output: {:?}", &out);
-    println!("Output after back prop: {:#?}", &out.as_slice().unwrap()[0..4]);
-
-    let mse = costs::mean_squared_error(y.view(), out.view());
-    println!("MSE: {}", mse);
-    assert!(mse > 0.6);
-
-    // Array of two predictions
-    //assert_eq!(out.shape(), &[1, 2]);
-}
-
-#[test]
-fn test_sequential_network_regression() {
-    let mut network = Sequential::new();
-    assert!(
-        network.add(Dense::new(3, 12, Activation::Linear)).is_ok()
-    );
-    assert!(
-        network.add(Dense::new(12, 24, Activation::Linear)).is_ok()
-    );
-    assert!(
-        network.add(Dense::new(24, 1, Activation::Linear)).is_ok()
-    );
-
-    let (x, y) = _get_regression();
-
-    network.fit(x.view(), y.view());
-
-    let out = network.predict(x.view());
-    println!("Out: {:?}", &out.as_slice().unwrap()[0..4]);
-    println!("target: {:?}", &y.as_slice().unwrap()[0..4]);
 }
 
 
