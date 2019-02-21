@@ -10,5 +10,5 @@ fn test_tanh() {
         [3.5]
     ]);
     let result = activations::tanh(&x, false);
-
+    // TODO: Finish this and other tests
 }
