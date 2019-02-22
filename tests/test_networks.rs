@@ -1,4 +1,5 @@
 use ndarray::{arr2, Array2, Axis};
+use pretty_assertions::{assert_eq, assert_ne};
 
 use pyrus_nn::network::Sequential;
 use pyrus_nn::layers::{Layer, Dense};
