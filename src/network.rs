@@ -22,8 +22,8 @@ impl Sequential {
     /// Create a new `Sequential` network, with _perhaps_ sensible defaults.
     pub fn new() -> Self {
         let mut nn = Sequential::default();
-        nn.lr = 0.001;
-        nn.n_epoch = 50;
+        nn.lr = 0.0001;
+        nn.n_epoch = 100;
         nn.batch_size = 150;
         nn.verbose = true;
         nn.cost = CostFunc::CrossEntropy;
