@@ -1,7 +1,8 @@
 use std::iter;
 
-use ndarray::{Array2, Zip, ArrayView2};
+use ndarray::{Array2, Zip, ArrayView2, Axis, s};
 use ndarray_parallel::prelude::*;
+use rand::{self, Rng};
 
 use crate::layers::Layer;
 use crate::costs::{self, CostFunc};
@@ -24,7 +25,7 @@ impl Sequential {
         let mut nn = Sequential::default();
         nn.lr = 0.0001;
         nn.n_epoch = 100;
-        nn.batch_size = 150;
+        nn.batch_size = 15;
         nn.verbose = true;
         nn.cost = CostFunc::CrossEntropy;
         nn
@@ -110,15 +111,25 @@ impl Sequential {
     /// Train the network according to the parameters set given training and target data
     pub fn fit(&mut self, x: ArrayView2<f32>, y: ArrayView2<f32>) {
 
+        let x_len = x.shape()[0];
+
         // Epochs
         for epoch in 1..self.n_epoch + 1 {
 
-            // Batches
-            for (batch, target) in x.exact_chunks((self.batch_size, x.shape()[1]))
-                .into_iter().zip(y.exact_chunks((self.batch_size, y.shape()[1])).into_iter()) {
+            // Next shuffle index
+            let mut rng = rand::thread_rng();
+            let index = (0..x_len)
+                .map(|_| rng.gen_range(0, x_len))
+                .collect::<Vec<usize>>();
 
-                let output = self.forward(batch);
-                self.backward(output.view(), target.view());
+            for chunk_slice_idx in index.as_slice().chunks(self.batch_size) {
+
+                // TODO: Find a way not to create new array but array view
+                let batch = x.select(Axis(0), chunk_slice_idx);
+                let target = y.select(Axis(0), chunk_slice_idx);
+
+                let output = self.forward(batch.view());
+                self.backward(output.view(), target.view())
             }
 
             // Output some stats
