@@ -24,10 +24,10 @@ impl Sequential {
     pub fn new() -> Self {
         let mut nn = Sequential::default();
         nn.lr = 0.001;
-        nn.n_epoch = 50;
+        nn.n_epoch = 100;
         nn.batch_size = 32;
         nn.verbose = true;
-        nn.cost = CostFunc::CrossEntropy;
+        nn.cost = CostFunc::Accuracy;
         nn
     }
 
@@ -66,13 +66,6 @@ impl Sequential {
 
         let lr = self.lr;
 
-        let cost_func = match self.cost {
-            CostFunc::MSE => costs::squared_error,
-            CostFunc::MAE => costs::absolute_error,
-            CostFunc::Accuracy => costs::accuracy,
-            CostFunc::CrossEntropy => costs::single_cross_entropy
-        };
-
         self.layers
             .iter_mut()
             .rev()
@@ -89,16 +82,7 @@ impl Sequential {
                     // Output layer, (no error calculated from previous layer)
                     None => {
 
-                        // Hold element-wise errors
-                        let mut error = Array2::zeros((output.shape()[0], output.shape()[1]));
-
-                        // Apply the scalar based cost function to out vs expected elements
-                        Zip::from(&mut error)
-                            .and(&expected)
-                            .and(&output)
-                            .par_apply(|err, &exp, &out| {
-                                *err = cost_func(exp, out);
-                            });
+                        let error = &expected - &output;
 
                         let error_out = layer.backward(error.t().to_owned(), lr);
                         Some(error_out)
@@ -137,17 +121,21 @@ impl Sequential {
 
                 let output = self.forward(x.view());
 
-                let error = match self.cost {
+                let score = match self.cost {
                     CostFunc::MSE => costs::mean_squared_error(y.view(), output.view()),
                     CostFunc::MAE => costs::mean_absolute_error(y.view(), output.view()),
                     CostFunc::Accuracy => costs::accuracy_score(y.view(), output.view()),
                     CostFunc::CrossEntropy => costs::cross_entropy(y.view(), output.view())
                 };
 
+                if score > 0.5 {
+                    break;
+                }
+
                 let progress = ((epoch as f32 / self.n_epoch as f32) * 10.) as usize;
                 let bar = iter::repeat("=").take(progress).collect::<String>();
                 let space_left = iter::repeat(".").take(10 - progress).collect::<String>();
-                println!("{}", format!("[{}>{}] - Epoch: {} - Error: {:.4}", bar, space_left, epoch, error));
+                println!("{}", format!("[{}>{}] - Epoch: {} - Error: {:.4}", bar, space_left, epoch, score));
 
             }
         }
