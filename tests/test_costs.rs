@@ -1,5 +1,6 @@
 use ndarray::arr2;
 use float_cmp::ApproxEq;
+use pretty_assertions::{assert_eq, assert_ne};
 
 use pyrus_nn::costs;
 
