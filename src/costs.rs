@@ -1,3 +1,4 @@
+use std::f32::MIN;
 use ndarray::{ArrayView2, Axis};
 
 /// Cost function selection `enum`
@@ -30,20 +31,42 @@ pub fn cross_entropy(y_true: ArrayView2<f32>, y_hat: ArrayView2<f32>) -> f32 {
 /// Cross entropy score of single element
 pub fn single_cross_entropy(y_true: f32, y_hat: f32) -> f32 {
 
-    let y_hat = if y_hat > 1.0 { y_hat - 1e-15 } else if y_hat < 0.0 { y_hat + 1e-15 } else { y_hat };
-
-    if y_true as usize == 1 {
-        -(y_hat.ln())
-    } else {
-        -((1. - y_hat).ln())
-    }
+    let y_hat = if y_hat > 1.0 { 1.0 - 1e-15 } else if y_hat < 0.0 { 0.0 + 1e-15 } else { y_hat };
+    -(y_hat.ln() + ( 1. - y_true) * (1. - y_hat).ln())
 }
 
 /// Measure accuracy score
 pub fn accuracy_score(y_true: ArrayView2<f32>, y_hat: ArrayView2<f32>) -> f32 {
-    y_true.iter()
-        .zip(y_hat.iter())
-        .map(|(yt, yh)| accuracy(*yt, *yh))
+    y_true.outer_iter()
+        .zip(y_hat.outer_iter())
+        .map(|(yt, yh)| {
+            if yt.len() > 1 {
+                let (ytrue_argmax, _max) = yt.iter()
+                    .enumerate()
+                    .fold((None, MIN), |(idx, acc), (i, x)| {
+                        if x > &acc {
+                            (Some(i), *x)
+                        } else {
+                            (idx, acc)
+                        }
+                    });
+
+                let (yhat_argmax, _max) = yh.iter()
+                    .enumerate()
+                    .fold((None, MIN), |(idx, acc), (i, x)| {
+                        if x > &acc {
+                            (Some(i), *x)
+                        } else {
+                            (idx, acc)
+                        }
+                    });
+
+                accuracy(ytrue_argmax.unwrap_or(0) as f32, yhat_argmax.unwrap_or(0) as f32)
+            } else {
+                accuracy(yt[0], yh[0])
+            }
+
+        })
         .sum::<f32>() / y_true.rows() as f32
 }
 

@@ -12,13 +12,16 @@ fn test_sequential_network_classification() {
 
     let mut network = Sequential::new();
     assert!(
-        network.add(Dense::new(4, 2, Activation::Tanh)).is_ok()
+        network.add(Dense::new(4, 6, Activation::Tanh)).is_ok()
     );
     assert!(
-        network.add(Dense::new(2, 4, Activation::Tanh)).is_ok()
+        network.add(Dense::new(6, 8, Activation::Tanh)).is_ok()
     );
     assert!(
-        network.add(Dense::new(4, 3, Activation::Softmax)).is_ok()
+        network.add(Dense::new(8, 6, Activation::Tanh)).is_ok()
+    );
+    assert!(
+        network.add(Dense::new(6, 3, Activation::Softmax)).is_ok()
     );
 
     if let Ok(_) = network.add(Dense::new(5, 2, Activation::Linear)) {
@@ -41,9 +44,9 @@ fn test_sequential_network_classification() {
         }
     }
 
-    let mse = costs::mean_squared_error(y.view(), out.view());
-    println!("MSE: {}", mse);
-    assert!(mse > 0.6);
+    let acc = costs::accuracy_score(y.view(), out.view());
+    println!("Accuracy: {}", acc);
+    assert!(acc > 0.5);
 
     // Array of two predictions
     //assert_eq!(out.shape(), &[1, 2]);
