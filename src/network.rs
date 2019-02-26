@@ -3,11 +3,12 @@ use std::iter;
 use ndarray::{Array2, Zip, ArrayView2, Axis, s};
 use ndarray_parallel::prelude::*;
 use rand::{self, Rng};
+use serde_derive::{Serialize, Deserialize};
 
 use crate::layers::Layer;
 use crate::costs::{self, CostFunc};
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct Sequential {
     layers: Vec<Box<dyn Layer>>,
     lr: f32,

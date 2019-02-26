@@ -2,11 +2,12 @@ use ndarray::{Array2};
 use rand::distributions::Normal;
 use ndarray_rand::{RandomExt, F32};
 use ndarray_parallel::prelude::*;
+use serde_derive::{Serialize, Deserialize};
 
 use crate::layers::Layer;
 use crate::activations::{self, Activation};
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct Dense {
     pub weights: Array2<f32>,
     pub n_input: usize,
@@ -16,6 +17,7 @@ pub struct Dense {
     pub activation: Activation,
 }
 
+#[typetag::serde]
 impl Layer for Dense {
 
     fn new(n_input: usize, n_output: usize, activation: Activation) -> Self {

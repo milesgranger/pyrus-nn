@@ -1,7 +1,10 @@
 use std::f32::MIN;
 use ndarray::{ArrayView2, Axis};
+use serde_derive::{Serialize, Deserialize};
+
 
 /// Cost function selection `enum`
+#[derive(Serialize, Deserialize)]
 pub enum CostFunc {
     MSE,
     MAE,
