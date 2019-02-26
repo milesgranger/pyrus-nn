@@ -5,11 +5,15 @@ authors = ["Miles Granger <miles59923@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-ndarray = "^0.12"
+ndarray = {version = "^0.12", default-features = false, features = ["serde-1"]}
 ndarray-rand = "^0.9"
 ndarray-parallel = "^0.9"
 rand = "^0.6"
 float-cmp = "^0.4.0"
+serde = "^1.0"
+serde_yaml = "^0.8"
+serde_derive = "^1.0"
+typetag = "^0.1"
 
 [dev-dependencies]
 pretty_assertions = "^0.6"

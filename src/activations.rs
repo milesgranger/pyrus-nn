@@ -1,8 +1,9 @@
 use std::cmp::Ordering;
 use ndarray::{Array2, Axis};
 use ndarray_parallel::prelude::*;
+use serde_derive::{Serialize, Deserialize};
 
-
+#[derive(Serialize, Deserialize)]
 pub enum Activation {
     Sigmoid,
     Linear,
