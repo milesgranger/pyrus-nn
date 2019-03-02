@@ -11,11 +11,11 @@ use crate::costs::{self, CostFunc};
 #[derive(Default, Serialize, Deserialize)]
 pub struct Sequential {
     layers: Vec<Box<dyn Layer>>,
-    lr: f32,
-    n_epoch: usize,
-    batch_size: usize,
-    cost: CostFunc,
-    verbose: bool,
+    pub lr: f32,
+    pub n_epoch: usize,
+    pub batch_size: usize,
+    pub cost: CostFunc,
+    pub verbose: bool,
 }
 
 
