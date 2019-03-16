@@ -8,6 +8,7 @@ use serde_derive::{Serialize, Deserialize};
 use crate::layers::Layer;
 use crate::costs::{self, CostFunc};
 
+
 #[derive(Default, Serialize, Deserialize)]
 pub struct Sequential {
     layers: Vec<Box<dyn Layer>>,
