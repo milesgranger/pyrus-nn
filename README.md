@@ -1,6 +1,6 @@
 # pyrus-nn
 
-[![Build Status](https://travis-ci.com/milesgranger/pyrus-nn.svg?token=9cHSKigsoXktTGTEJsVA&branch=master)](https://travis-ci.com/milesgranger/pyrus-nn)
+[![Build Status](https://milesgranger.visualstudio.com/builds/_apis/build/status/pyrus-nn?branchName=master)](https://milesgranger.visualstudio.com/builds/_build/latest?definitionId=1&branchName=master)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=milesgranger/black-jack)](https://dependabot.com)
 
 Lightweight neural network framework written in Rust.
