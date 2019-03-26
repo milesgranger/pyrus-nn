@@ -43,10 +43,8 @@ impl PyrusSequential {
         })
     }
 
-    fn add(&mut self, layer: &PyObject) -> PyResult<()> {
-
-        let layer: Dense = PyObject::extract(layer, self);
-        self.network.add(layer.layer).unwrap();
+    fn add_dense(&mut self, n_input: usize, n_output: usize) -> PyResult<()> {
+        self.network.add(Dense::new(n_input, n_output, Activation::Sigmoid)).unwrap();
         Ok(())
     }
 }
