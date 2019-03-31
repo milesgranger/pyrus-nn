@@ -45,68 +45,74 @@ jobs:
         displayName: "Python Test"
 
   - job: Linux
-      pool:
-        vmImage: 'Ubuntu 16.04'
-      strategy:
-        maxParallel: 2
-        matrix:
-          Python36:
-            PYTHON_VERSION: '3.6'
-            RUSTUP_TOOLCHAIN: nightly
-            TEST_MODE: fast
-          Python37:
-            PYTHON_VERSION: '3.7'
-            RUSTUP_TOOLCHAIN: nightly
-            TEST_MODE: fast
-      steps:
-        - task: UsePythonVersion@0
-          inputs:
-            versionSpec: '$(PYTHON_VERSION)'
-            addToPath: true
+    pool:
+      vmImage: 'Ubuntu 16.04'
+    strategy:
+      maxParallel: 2
+      matrix:
+        Python36:
+          PYTHON_VERSION: '3.6'
+          RUSTUP_TOOLCHAIN: nightly
+          TEST_MODE: fast
+        Python37:
+          PYTHON_VERSION: '3.7'
+          RUSTUP_TOOLCHAIN: nightly
+          TEST_MODE: fast
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(PYTHON_VERSION)'
+          addToPath: true
 
-        - script: |
-            curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $(RUSTUP_TOOLCHAIN)
-            export PATH=$PATH:$HOME/.cargo/bin
-          displayName: 'Install rustc'
+      - script: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $(RUSTUP_TOOLCHAIN)
+          export PATH=$PATH:$HOME/.cargo/bin
+        displayName: 'Install rustc'
 
-        - script: cargo test --verbose
-          displayName: 'Cargo Test'
+      - script: |
+          export PATH=$PATH:$HOME/.cargo/bin
+          cargo test --verbose
+        displayName: 'Cargo Test'
 
-        - script: |
-            pip install setuptools-rust setuptools pytest wheel
-            python setup.py test
-          displayName: "Python Test"
+      - script: |
+          export PATH=$PATH:$HOME/.cargo/bin
+          pip install setuptools-rust setuptools pytest wheel
+          python setup.py test
+        displayName: "Python Test"
 
-  - job: OSX
-      pool:
-        vmImage: 'macOS-10.13'
-      strategy:
-        maxParallel: 2
-        matrix:
-          Python36:
-            PYTHON_VERSION: '3.6'
-            RUSTUP_TOOLCHAIN: nightly
-            TEST_MODE: fast
-          Python37:
-            PYTHON_VERSION: '3.7'
-            RUSTUP_TOOLCHAIN: nightly
-            TEST_MODE: fast
-      steps:
-        - task: UsePythonVersion@0
-          inputs:
-            versionSpec: '$(PYTHON_VERSION)'
-            addToPath: true
-
-        - script: |
-            curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $(RUSTUP_TOOLCHAIN)
-            export PATH=$PATH:$HOME/.cargo/bin
-          displayName: 'Install rustc'
-
-        - script: cargo test --verbose
-          displayName: 'Cargo Test'
-
-        - script: |
-            pip install setuptools-rust setuptools pytest wheel
-            python setup.py test
-          displayName: "Python Test"
+#  - job: OSX
+#    pool:
+#      vmImage: 'macOS-10.13'
+#    strategy:
+#      maxParallel: 2
+#      matrix:
+#        Python36:
+#          PYTHON_VERSION: '3.6'
+#          RUSTUP_TOOLCHAIN: nightly
+#          TEST_MODE: fast
+#        Python37:
+#          PYTHON_VERSION: '3.7'
+#          RUSTUP_TOOLCHAIN: nightly
+#          TEST_MODE: fast
+#    steps:
+#      - task: UsePythonVersion@0
+#        inputs:
+#          versionSpec: '$(PYTHON_VERSION)'
+#          addToPath: true
+#
+#      - script: |
+#          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain $(RUSTUP_TOOLCHAIN)
+#          export PATH=$PATH:$HOME/.cargo/bin
+#        displayName: 'Install rustc'
+#
+#      - script: |
+#          export PATH=$PATH:$HOME/.cargo/bin
+#          cargo test --verbose
+#        displayName: 'Cargo Test'
+#
+#      - script: |
+#          export PATH=$PATH:$HOME/.cargo/bin
+#          pip install setuptools-rust setuptools pytest wheel
+#          python setup.py test
+#        displayName: "Python Test"
           
