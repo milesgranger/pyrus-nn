@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+import numpy as np
 
 from pyrus_nn.models import Sequential
 from pyrus_nn import layers
@@ -27,3 +28,13 @@ def test_py_interface_init():
 def test_py_interface_add_layer(layer):
     model = Sequential(lr=0.01, n_epochs=2)
     model.add(layer)
+
+
+def test_fit_predict():
+    model = Sequential(lr=0.01, n_epochs=2)
+    model.add(layers.Dense(2, 4))
+    model.add(layers.Dense(4, 1))
+
+    X = np.random.random(size=100).reshape(-1, 2)
+    y = np.random.randint(0, 10, size=50).reshape(-1, 1)
+    model.fit(X, y)

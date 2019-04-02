@@ -13,7 +13,7 @@ setup_requirements = ["pytest-runner", "setuptools_scm"]
 # Test requirements
 test_requirements = [
     "pytest",
-    "numpy"
+    "numpy~=1.16"
 ]
 
 setup(

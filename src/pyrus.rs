@@ -1,26 +1,9 @@
 use pyo3::prelude::*;
+use ndarray::{Array2, Array};
 
 use crate::network::Sequential;
-use crate::costs::CostFunc;
 use crate::layers::{Layer, Dense, Activation};
 
-
-#[pyclass]
-pub struct PyrusDense {
-    layer: Dense
-}
-
-#[pymethods]
-impl PyrusDense {
-
-    #[new]
-    fn __new__(obj: &PyRawObject, n_input: usize, n_output: usize) -> PyResult<()> {
-        obj.init(|_| {
-            let activation = Activation::Tanh;
-            PyrusDense { layer: Dense::new(n_input, n_output, activation) }
-        })
-    }
-}
 
 #[pyclass]
 pub struct PyrusSequential {
@@ -47,14 +30,21 @@ impl PyrusSequential {
         self.network.add(Dense::new(n_input, n_output, Activation::Sigmoid)).unwrap();
         Ok(())
     }
+
+    fn fit(&mut self, x: Vec<Vec<f32>>, y: Vec<Vec<f32>>) -> PyResult<()> {
+        let xshape = (x.len(), x[0].len());
+        let yshape = (y.len(), y[0].len());
+        let x: Array2<f32> = Array::from_iter(x.into_iter().flat_map(|v| v)).into_shape(xshape).unwrap();
+        let y: Array2<f32> = Array::from_iter(y.into_iter().flat_map(|v| v)).into_shape(yshape).unwrap();
+        self.network.fit(x.view(), y.view());
+        Ok(())
+    }
 }
 
-
 #[pymodinit]
-fn pyrus_nn(py: Python, m: &PyModule) -> PyResult<()> {
+fn pyrus_nn(_py: Python, m: &PyModule) -> PyResult<()> {
 
     m.add_class::<PyrusSequential>()?;
-    m.add_class::<PyrusDense>()?;
     Ok(())
 
 }

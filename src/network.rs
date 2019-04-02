@@ -1,7 +1,6 @@
 use std::iter;
 
-use ndarray::{Array2, Zip, ArrayView2, Axis, s};
-use ndarray_parallel::prelude::*;
+use ndarray::{Array2, ArrayView2, Axis};
 use rand::{self, Rng};
 use serde_derive::{Serialize, Deserialize};
 
