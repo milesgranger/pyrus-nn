@@ -24,7 +24,7 @@ class Sequential:
         """
         self._model = PyrusSequential(lr, n_epochs)
 
-    def fit(self, X: Iterable[float], y: Iterable[float]):
+    def fit(self, X: Iterable[Iterable[float]], y: Iterable[Iterable[float]]):
         """
         Fit the model using X and y. Each of which would be a 2d iterable.
 
@@ -36,7 +36,9 @@ class Sequential:
         Parameters
         ----------
         X: Iterable
+            2d iterable
         y: Iterable
+            2d iterable
 
         Returns
         -------
@@ -44,6 +46,21 @@ class Sequential:
         """
         self._model.fit(X, y)
         return self
+
+    def predict(self, X: Iterable[Iterable[float]]) -> Iterable[Iterable[float]]:
+        """
+        Apply the model to input data
+
+        Parameters
+        ----------
+        X: Iterable
+            2d iterable
+
+        Returns
+        -------
+        Iterable[Iterable[float]]
+        """
+        return self._model.predict(X)
 
     def add(self, layer: layers.Layer):
         """

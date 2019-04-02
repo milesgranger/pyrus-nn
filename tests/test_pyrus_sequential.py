@@ -30,11 +30,14 @@ def test_py_interface_add_layer(layer):
     model.add(layer)
 
 
-def test_fit_predict():
+@pytest.mark.parametrize("n_features", list(range(1, 500, 91)))
+def test_fit_predict(n_features: int):
     model = Sequential(lr=0.01, n_epochs=2)
-    model.add(layers.Dense(2, 4))
+    model.add(layers.Dense(n_features, 4))
     model.add(layers.Dense(4, 1))
 
-    X = np.random.random(size=100).reshape(-1, 2)
+    X = np.random.random(size=n_features * 50).reshape(-1, n_features)
     y = np.random.randint(0, 10, size=50).reshape(-1, 1)
     model.fit(X, y)
+
+    model.predict(X)

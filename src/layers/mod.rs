@@ -3,13 +3,14 @@ use ndarray::Array2;
 mod dense;
 
 // Exports
-pub use crate::layers::dense::Dense;
 pub use crate::activations::Activation;
-
+pub use crate::layers::dense::Dense;
 
 #[typetag::serde]
 pub trait Layer {
-    fn new(n_input: usize, n_output: usize, activation: Activation) -> Self where Self: Sized;
+    fn new(n_input: usize, n_output: usize, activation: Activation) -> Self
+    where
+        Self: Sized;
     fn forward(&mut self, x: Array2<f32>) -> Array2<f32>;
     fn n_input(&self) -> usize;
     fn n_output(&self) -> usize;
