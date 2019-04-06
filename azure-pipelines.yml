@@ -40,6 +40,7 @@ jobs:
         displayName: 'Cargo Test'
 
       - script: |
+          cargo clean
           pip install setuptools-rust setuptools pytest wheel
           python setup.py test
         displayName: "Python Test"
@@ -76,6 +77,7 @@ jobs:
 
       - script: |
           export PATH=$PATH:$HOME/.cargo/bin
+          cargo clean
           pip install setuptools-rust setuptools pytest wheel
           python setup.py test
         displayName: "Python Test"
