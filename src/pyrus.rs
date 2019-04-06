@@ -1,5 +1,6 @@
 use ndarray::{Array, Array2};
 use pyo3::prelude::*;
+use pyo3::types::PyType;
 use serde_derive::{Serialize, Deserialize};
 use serde_yaml;
 use serde_json;
@@ -30,9 +31,21 @@ impl PyrusSequential {
     fn to_yaml(&self) -> PyResult<String> {
         Ok(serde_yaml::to_string(&self).unwrap())
     }
+
+    #[classmethod]
+    fn from_yaml(_cls: &PyType, conf: String) -> PyResult<PyrusSequential> {
+        Ok(serde_yaml::from_str(&conf).unwrap())
+    }
+
     fn to_json(&self) -> PyResult<String> {
         Ok(serde_json::to_string(&self).unwrap())
     }
+
+    #[classmethod]
+    fn from_json(_cls: &PyType, conf: String) -> PyResult<PyrusSequential> {
+        Ok(serde_json::from_str(&conf).unwrap())
+    }
+
 
     fn add_dense(&mut self, n_input: usize, n_output: usize) -> PyResult<()> {
         self.network

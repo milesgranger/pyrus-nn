@@ -95,8 +95,29 @@ class Sequential:
             model=json.loads(self._model.to_json())
         )
 
+    @classmethod
+    def from_dict(cls, conf: dict):
+        """
+        Re-construct the model from a serialized version of itself
+
+        Parameters
+        ----------
+        conf: dict
+            Configuration resulting from a previous call to ``.to_dict()``
+
+        Returns
+        -------
+        Sequential
+        """
+        model = cls(**conf['params'])
+        model._model = PyrusSequential.from_json(json.dumps(conf['model']))
+        return model
+
     def get_params(self, deep=False):
         return dict(
             lr=self.lr,
             n_epochs=self.n_epochs
         )
+
+    def __eq__(self, other: "Sequential"):
+        return other.to_dict() == self.to_dict()
