@@ -8,6 +8,19 @@ from pyrus_nn import layers
 from pyrus_nn.rust.pyrus_nn import PyrusSequential
 
 
+@pytest.fixture
+def model():
+    model = Sequential(lr=0.01, n_epochs=2)
+    model.add(layers.Dense(4, 8))
+    model.add(layers.Dense(8, 4))
+    return model
+
+
+def test_serialization(model: Sequential):
+    import pdb; pdb.set_trace()
+    model.to_dict()
+
+
 def test_rust_raw_init():
     """Basic init test"""
     _nn = PyrusSequential(lr=0.05, n_epoch=2)
@@ -28,6 +41,7 @@ def test_py_interface_init():
 def test_py_interface_add_layer(layer):
     model = Sequential(lr=0.01, n_epochs=2)
     model.add(layer)
+
 
 
 @pytest.mark.parametrize("n_features", list(range(1, 500, 91)))

@@ -1,10 +1,14 @@
 use ndarray::{Array, Array2};
 use pyo3::prelude::*;
+use serde_derive::{Serialize, Deserialize};
+use serde_yaml;
+use serde_json;
 
 use crate::layers::{Activation, Dense, Layer};
 use crate::network::Sequential;
 
 #[pyclass]
+#[derive(Serialize, Deserialize)]
 pub struct PyrusSequential {
     network: Sequential,
 }
@@ -21,6 +25,13 @@ impl PyrusSequential {
 
             PyrusSequential { network }
         })
+    }
+
+    fn to_yaml(&self) -> PyResult<String> {
+        Ok(serde_yaml::to_string(&self).unwrap())
+    }
+    fn to_json(&self) -> PyResult<String> {
+        Ok(serde_json::to_string(&self).unwrap())
     }
 
     fn add_dense(&mut self, n_input: usize, n_output: usize) -> PyResult<()> {

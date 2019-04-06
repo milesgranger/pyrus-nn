@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import json
 from typing import Iterable
 
 from pyrus_nn.rust.pyrus_nn import PyrusSequential
@@ -23,6 +24,8 @@ class Sequential:
             How many epochs shall it do for training
         """
         self._model = PyrusSequential(lr, n_epochs)
+        self.lr = lr
+        self.n_epochs = n_epochs
 
     def fit(self, X: Iterable[Iterable[float]], y: Iterable[Iterable[float]]):
         """
@@ -77,3 +80,23 @@ class Sequential:
         """
         if isinstance(layer, layers.Dense):
             self._model.add_dense(layer.n_input, layer.n_output)
+
+    def to_dict(self):
+        """
+        Serialize this network as a dictionary of primitives suitable
+        for further serialization into json, yaml, etc.
+
+        Returns
+        -------
+        dict
+        """
+        return dict(
+            params=self.get_params(),
+            model=json.loads(self._model.to_json())
+        )
+
+    def get_params(self, deep=False):
+        return dict(
+            lr=self.lr,
+            n_epochs=self.n_epochs
+        )
