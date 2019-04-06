@@ -11,8 +11,8 @@ from pyrus_nn.rust.pyrus_nn import PyrusSequential
 @pytest.fixture
 def model():
     model = Sequential(lr=0.01, n_epochs=2)
-    model.add(layers.Dense(4, 8))
-    model.add(layers.Dense(8, 4))
+    model.add(layers.Dense(10, 8))
+    model.add(layers.Dense(8, 1))
     return model
 
 
@@ -47,13 +47,19 @@ def test_py_interface_add_layer(layer):
 
 
 @pytest.mark.parametrize("n_features", list(range(1, 500, 91)))
-def test_fit_predict(n_features: int):
+@pytest.mark.parametrize("use_lists", (True, False))
+def test_fit_predict_numpy(n_features: int, use_lists: bool):
     model = Sequential(lr=0.01, n_epochs=2)
     model.add(layers.Dense(n_features, 4))
     model.add(layers.Dense(4, 1))
 
     X = np.random.random(size=n_features * 50).reshape(-1, n_features)
     y = np.random.randint(0, 10, size=50).reshape(-1, 1)
+
+    X = X.tolist() if use_lists else X
+    y = y.tolist() if use_lists else y
+
     model.fit(X, y)
 
-    model.predict(X)
+    out = model.predict(X)
+    assert len(out) == 50
