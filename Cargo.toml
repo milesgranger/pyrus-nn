@@ -3,6 +3,10 @@ name = "pyrus-nn"
 version = "0.2.0"
 authors = ["Miles Granger <miles59923@gmail.com>"]
 edition = "2018"
+license-file = "LICENSE"
+repository = "https://github.com/milesgranger/pyrus-nn"
+description = "Micro Neural Network framework"
+readme = "README.md"
 
 [lib]
 name = "pyrus_nn"

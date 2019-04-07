@@ -2,9 +2,25 @@
 
 [![Build Status](https://milesgranger.visualstudio.com/builds/_apis/build/status/pyrus-nn?branchName=master)](https://milesgranger.visualstudio.com/builds/_build/latest?definitionId=1&branchName=master)
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=milesgranger/black-jack)](https://dependabot.com)
+[![crates.io](http://meritbadge.herokuapp.com/pyrus-nn)](https://crates.io/crates/pyrus-nn)
+
+[Rust API Documentation](https://docs.rs/pyrus-nn)
 
 Lightweight neural network framework written in Rust, with _thin_ python bindings.
 
+- Features:
+    - Serialize networks into/from YAML & JSON!
+        - Rust -> serde compatible
+        - Python -> `network.to_dict()` & `Sequential.from_dict()`
+    - Python install requires _zero_ dependencies
+    - No external system libs to install 
+    
+- Draw backs:
+    - Only supports generic gradient descent. 
+    - Fully connected (Dense) layers only so far
+    - Activation functions limited to linear, tanh, sigmoid and softmax
+    - Cost functions limited to MSE, MAE, Cross Entropy and Accuracy
+    
 ### Install:
 
 Python:
