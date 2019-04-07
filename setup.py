@@ -17,7 +17,7 @@ test_requirements = [
 ]
 
 setup(
-    name="pyrust-nn",
+    name="pyrus-nn",
     packages=find_packages(),
     author="Miles Granger",
     author_email="miles59923@gmail.com",

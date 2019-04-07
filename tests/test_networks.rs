@@ -3,12 +3,13 @@ use pretty_assertions::{assert_eq, assert_ne};
 
 use pyrus_nn::activations::Activation;
 use pyrus_nn::costs;
+use pyrus_nn::costs::CostFunc;
 use pyrus_nn::layers::{Dense, Layer};
 use pyrus_nn::network::Sequential;
 
 #[test]
 fn test_sequential_network_classification() {
-    let mut network = Sequential::new();
+    let mut network = Sequential::new(0.001, 100, 32, CostFunc::CrossEntropy);
     assert!(network.add(Dense::new(4, 6, Activation::Tanh)).is_ok());
     assert!(network.add(Dense::new(6, 8, Activation::Tanh)).is_ok());
     assert!(network.add(Dense::new(8, 6, Activation::Tanh)).is_ok());
@@ -46,7 +47,7 @@ fn test_sequential_network_classification() {
 
 //#[test]
 fn test_sequential_network_regression() {
-    let mut network = Sequential::new();
+    let mut network = Sequential::new(0.001, 100, 32, CostFunc::CrossEntropy);
     assert!(network.add(Dense::new(3, 12, Activation::Linear)).is_ok());
     assert!(network.add(Dense::new(12, 24, Activation::Linear)).is_ok());
     assert!(network.add(Dense::new(24, 1, Activation::Linear)).is_ok());

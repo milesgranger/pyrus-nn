@@ -11,6 +11,20 @@ pub enum CostFunc {
     CrossEntropy,
 }
 
+
+impl From<String> for CostFunc {
+    fn from(name: String) -> Self {
+        match name.to_lowercase().as_str() {
+            "mse" => CostFunc::MSE,
+            "mae" => CostFunc::MAE,
+            "accuracy" => CostFunc::Accuracy,
+            "crossentropy" => CostFunc::CrossEntropy,
+            _ => panic!("Unknown cost function: {}", &name)
+        }
+    }
+}
+
+
 impl std::default::Default for CostFunc {
     fn default() -> Self {
         CostFunc::MSE

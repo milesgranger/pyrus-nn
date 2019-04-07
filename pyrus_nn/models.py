@@ -12,7 +12,7 @@ class Sequential:
     # This is the actual Rust implementation with Python interface
     _model: PyrusSequential
 
-    def __init__(self, lr: float, n_epochs: int):
+    def __init__(self, lr: float, n_epochs: int, batch_size: int = 32, cost_func: str = "mse"):
         """
         Initialize the model.
 
@@ -23,9 +23,11 @@ class Sequential:
         n_epochs: int
             How many epochs shall it do for training
         """
-        self._model = PyrusSequential(lr, n_epochs)
+        self._model = PyrusSequential(lr, n_epochs, batch_size, cost_func)
         self.lr = lr
         self.n_epochs = n_epochs
+        self.batch_size = batch_size
+        self.cost_func = cost_func
 
     def fit(self, X: Iterable[Iterable[float]], y: Iterable[Iterable[float]]):
         """
@@ -79,7 +81,7 @@ class Sequential:
         None
         """
         if isinstance(layer, layers.Dense):
-            self._model.add_dense(layer.n_input, layer.n_output)
+            self._model.add_dense(layer.n_input, layer.n_output, layer.activation)
 
     def to_dict(self):
         """

@@ -15,7 +15,7 @@ pip install pyrus-nn  # Has ZERO dependencies!
 Rust:
 ```toml
 [dependencies]
-pyrus-nn = "0.1.0"
+pyrus-nn = "0.2.0"
 ```
 
 
@@ -26,8 +26,8 @@ from pyrus_nn.models import Sequential
 from pyrus_nn.layers import Dense
 
 model = Sequential(lr=0.001, n_epochs=10)
-model.add(Dense(n_input=12, n_output=24))
-model.add(Dense(n_input=24, n_output=1))
+model.add(Dense(n_input=12, n_output=24, activation='sigmoid'))
+model.add(Dense(n_input=24, n_output=1, activation='sigmoid'))
 
 # Create some X and y, each of which must be 2d
 X = [list(range(12)) for _ in range(10)]
@@ -48,7 +48,7 @@ use pyrus_nn::{network::Sequential, layers::Dense};
 
 // Network with 4 inputs and 1 output.
 fn main() {
-    let mut network = Sequential::new();
+    let mut network = Sequential::new(0.001, 100, 32, CostFunc::CrossEntropy);
     assert!(
         network.add(Dense::new(4, 5)).is_ok()
     );
@@ -61,10 +61,6 @@ fn main() {
     assert!(
         network.add(Dense::new(4, 1)).is_ok()
     );
-
-    // Override defaults...
-    network.n_epoch = 10;
-    network.lr = 0.0001;
     
     let X: Array2<f32> = ...
     let y: Array2<f32> = ...

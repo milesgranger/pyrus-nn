@@ -19,14 +19,15 @@ pub struct Sequential {
 
 impl Sequential {
     /// Create a new `Sequential` network, with _perhaps_ sensible defaults.
-    pub fn new() -> Self {
-        let mut nn = Sequential::default();
-        nn.lr = 0.001;
-        nn.n_epoch = 100;
-        nn.batch_size = 32;
-        nn.verbose = true;
-        nn.cost = CostFunc::Accuracy;
-        nn
+    pub fn new(lr: f32, n_epoch: usize, batch_size: usize, cost: CostFunc) -> Self {
+        Sequential {
+            layers: vec![],
+            lr,
+            n_epoch,
+            batch_size,
+            cost,
+            verbose: true,
+        }
     }
 
     /// Add a layer to the network

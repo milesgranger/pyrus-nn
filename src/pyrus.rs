@@ -1,10 +1,11 @@
 use ndarray::{Array, Array2};
 use pyo3::prelude::*;
 use pyo3::types::PyType;
-use serde_derive::{Serialize, Deserialize};
-use serde_yaml;
+use serde_derive::{Deserialize, Serialize};
 use serde_json;
+use serde_yaml;
 
+use crate::costs::CostFunc;
 use crate::layers::{Activation, Dense, Layer};
 use crate::network::Sequential;
 
@@ -17,13 +18,16 @@ pub struct PyrusSequential {
 #[pymethods]
 impl PyrusSequential {
     #[new]
-    fn __new__(obj: &PyRawObject, lr: f32, n_epoch: usize) -> PyResult<()> {
+    fn __new__(
+        obj: &PyRawObject,
+        lr: f32,
+        n_epoch: usize,
+        batch_size: usize,
+        cost_func: String,
+    ) -> PyResult<()> {
         obj.init(|_| {
-            // TODO: Builder pattern
-            let mut network = Sequential::new();
-            network.n_epoch = n_epoch;
-            network.lr = lr;
-
+            let cost_func = CostFunc::from(cost_func);
+            let network = Sequential::new(lr, n_epoch, batch_size, cost_func);
             PyrusSequential { network }
         })
     }
@@ -46,10 +50,9 @@ impl PyrusSequential {
         Ok(serde_json::from_str(&conf).unwrap())
     }
 
-
-    fn add_dense(&mut self, n_input: usize, n_output: usize) -> PyResult<()> {
+    fn add_dense(&mut self, n_input: usize, n_output: usize, activation: String) -> PyResult<()> {
         self.network
-            .add(Dense::new(n_input, n_output, Activation::Sigmoid))
+            .add(Dense::new(n_input, n_output, Activation::from(activation)))
             .unwrap();
         Ok(())
     }

@@ -11,6 +11,18 @@ pub enum Activation {
     Softmax,
 }
 
+impl From<String> for Activation {
+    fn from(name: String) -> Self {
+        match name.to_lowercase().as_str() {
+            "sigmoid" => Activation::Sigmoid,
+            "linear" => Activation::Linear,
+            "tanh" => Activation::Tanh,
+            "softmax" => Activation::Softmax,
+            _ => panic!("Activation {} not supported", name)
+        }
+    }
+}
+
 impl std::default::Default for Activation {
     fn default() -> Self {
         Activation::Linear
