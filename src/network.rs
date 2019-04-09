@@ -117,10 +117,6 @@ impl Sequential {
                     CostFunc::CrossEntropy => costs::cross_entropy(y.view(), output.view()),
                 };
 
-                if score > 0.5 {
-                    break;
-                }
-
                 let progress = ((epoch as f32 / self.n_epoch as f32) * 10.) as usize;
                 let bar = iter::repeat("=").take(progress).collect::<String>();
                 let space_left = iter::repeat(".").take(10 - progress).collect::<String>();
