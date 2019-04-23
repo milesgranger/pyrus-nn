@@ -55,6 +55,9 @@ impl Layer for Dense {
     fn weights(&self) -> Array2<f32> {
         self.weights.clone()
     }
+    fn set_weights(&mut self, weights: Array2<f32>) -> () {
+        self.weights = weights;
+    }
     fn backward(&mut self, error: Array2<f32>, lr: f32) -> Array2<f32> {
         let delta = match self.activation {
             Activation::Sigmoid => activations::sigmoid(&self.output(), true) * error.t(),
