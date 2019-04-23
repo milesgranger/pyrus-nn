@@ -16,6 +16,12 @@ test_requirements = [
     "numpy~=1.16"
 ]
 
+
+def long_description():
+    with open('README.md') as f:
+        return f.read()
+
+
 setup(
     name="pyrus-nn",
     packages=find_packages(),
@@ -28,6 +34,7 @@ setup(
         "Programming Language :: Python :: 3.7",
     ],
     description="Micro Neural Network framework implemented in Rust w/ Python bindings",
+    long_description=long_description(),
     install_requires=install_requires,
     setup_requires=setup_requirements,
     tests_require=test_requirements,
