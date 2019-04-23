@@ -31,7 +31,7 @@ pip install pyrus-nn  # Has ZERO dependencies!
 Rust:
 ```toml
 [dependencies]
-pyrus-nn = "0.2.0"
+pyrus-nn = "0.2.1"
 ```
 
 
