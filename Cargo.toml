@@ -16,7 +16,7 @@ crate-type = ["cdylib", "lib"]
 ndarray = {version = "^0.12", default-features = false, features = ["serde-1"]}
 ndarray-rand = "^0.9"
 ndarray-parallel = "^0.9"
-rand = "^0.6"
+rand = "^0.7"
 float-cmp = "^0.5.1"
 serde = "^1.0"
 serde_yaml = "^0.8"
