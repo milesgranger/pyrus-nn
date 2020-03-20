@@ -23,7 +23,7 @@ serde_yaml = "^0.8"
 serde_json = "^1.0"
 serde_derive = "^1.0"
 typetag = "^0.1"
-pyo3 = { version = "0.5.2", features = ["extension-module"], default-features = false}
+pyo3 = { version = "0.9.0", features = ["extension-module"], default-features = false}
 
 [dev-dependencies]
 pretty_assertions = "^0.6"
