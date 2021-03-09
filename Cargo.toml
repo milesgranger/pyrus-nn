@@ -26,4 +26,4 @@ typetag = "^0.1"
 pyo3 = { version = "0.5.2", features = ["extension-module"], default-features = false}
 
 [dev-dependencies]
-pretty_assertions = "^0.6"
+pretty_assertions = "^0.7"
