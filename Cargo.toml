@@ -13,7 +13,7 @@ name = "pyrus_nn"
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-ndarray = {version = "^0.12", default-features = false, features = ["serde-1"]}
+ndarray = {version = "^0.15", default-features = false, features = ["serde-1"]}
 ndarray-rand = "^0.9"
 ndarray-parallel = "^0.9"
 rand = "^0.6"
