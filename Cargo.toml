@@ -14,7 +14,7 @@ crate-type = ["cdylib", "lib"]
 
 [dependencies]
 ndarray = {version = "^0.12", default-features = false, features = ["serde-1"]}
-ndarray-rand = "^0.9"
+ndarray-rand = "^0.14"
 ndarray-parallel = "^0.9"
 rand = "^0.6"
 float-cmp = "^0.5.1"
