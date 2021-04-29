@@ -1,0 +1,18 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "04:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: pyo3
+    versions:
+    - 0.13.1
+  - dependency-name: ndarray-rand
+    versions:
+    - 0.13.0
+  - dependency-name: ndarray
+    versions:
+    - 0.14.0
